@@ -8,6 +8,10 @@ import mongoose from "mongoose";
 import multer from "multer";
 import { GridFsStorage } from "multer-gridfs-storage";
 import { GridFSBucket } from "mongodb";
+import fs from "fs";
+
+const __dirname = path.resolve();
+const filePath = path.join(__dirname, "uploads");
 
 const app = express();
 const PORT = 3501;
@@ -24,22 +28,16 @@ mongoose
   .catch((err) => console.log("Failed to Connect to DB", err));
 
 // Storage
-const storage = new GridFsStorage({
-  url: mongoURI,
-  file: (req, file) => {
-    return new Promise((resolve, reject) => {
-      crypto.randomBytes(16, (err, buf) => {
-        if (err) {
-          return reject(err);
-        }
-        const filename = buf.toString("hex") + path.extname(file.originalname);
-        const fileInfo = {
-          filename: file.originalname,
-          bucketName: "uploads",
-        };
-        resolve(fileInfo);
-      });
-    });
+var storage = multer.diskStorage({
+  // Setting directory on disk to save uploaded files
+  destination: function (req, file, cb) {
+    cb(null, filePath);
+  },
+  // Setting name of file saved
+  filename: function (req, file, cb) {
+    const counter = fs.readdirSync(filePath).length+1 // gives back an array
+    // cb(null, counter + "." + fileExtension(file.originalname));
+    cb(null, counter + "." + path.extname(file.originalname));
   },
 });
 
@@ -60,17 +58,20 @@ app.post("/upload", upload.single("file"), (req, res) => {
 });
 
 app.get("/files", (req, res) => {
-  console.log('get files')
-  gfs.find().toArray((err, files) => {
-    // check if files
-    if (!files || files.length === 0) {
-      return res.status(404).json({
-        err: "no files exist"
-      });
-    }
+  console.log('get files');
+  const files = fs.readdirSync(filePath);
+  console.log(fs.readdirSync(filePath));
+  // gfs.find().toArray((err, files) => {
+  //   // check if files
+  //   if (!files || files.length === 0) {
+  //     return res.status(404).json({
+  //       err: "no files exist"
+  //     });
+  //   }
 
-    return res.json(files);
-  });
+  //   return res.json(files);
+  // });
+  return res.json(files);
 });
 
 app.get("/image/:filename", (req, res) => {
