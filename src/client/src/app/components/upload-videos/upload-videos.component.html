@@ -7,10 +7,17 @@
               <li *ngFor="let file of files">
 
 
-                <a [href]="'http://localhost:3501/image/' +file.filename" [download]="file.filename" >{{file.filename}}</a>
+                <a [href]="'http://10.0.0.205:3501/image/' +file.filename" [download]="file.filename" >{{file.filename}}</a>
 
-                <button (click)="stream(file.filename)" *ngIf="file.contentType.includes('video')">Stream</button>
+                <button (click)="stream(file.filename)" >Stream</button>
                 <button (click)="delete(file._id)">Delete</button> <br>
-                <img *ngIf="file.contentType.includes('image')" [src]="'http://localhost:3501/image/' +file.filename" width="250" alt="" class="img-responsive">
+                <img *ngIf="file" [src]="'http://10.0.0.205:3501/image/' +file.filename" width="250" alt="" class="img-responsive">
+                <hr>
+              {{file | json}}
+                <ng-container *ngIf="file">
+                  <video id="videoPlayer" width="650" controls muted="muted" autoplay>
+                    <source [src]="baseUrl +'/uploads/' + file" type="video/mp4" />
+                  </video>
+                </ng-container>
               </li>
             </ul>

@@ -6,8 +6,8 @@ import { Postable } from '../models/postable';
   providedIn: 'root'
 })
 export class ApiService {
-  baseUrl:string = 'http://localhost:3501/';
-  constructor(private http: HttpClient) 
+  baseUrl:string = 'http://10.0.0.205:3501';
+  constructor(private http: HttpClient)
   { }
 
   get<T>(resourceName: string) {
